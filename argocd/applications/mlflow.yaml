@@ -11,7 +11,7 @@ spec:
   source:
     repoURL: https://github.com/Matvieienko/goit-devops-hw-09.git
     targetRevision: lesson-9      # гілка, з якою працює це ДЗ
-    path: mlops-experiments/argocd/workloads/mlflow
+    path: argocd/workloads/mlflow
   destination:
     server: https://kubernetes.default.svc
     namespace: application

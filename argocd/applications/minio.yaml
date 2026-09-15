@@ -9,7 +9,7 @@ spec:
   source:
     repoURL: https://github.com/Matvieienko/goit-devops-hw-09.git
     targetRevision: lesson-9
-    path: mlops-experiments/argocd/workloads/minio
+    path: argocd/workloads/minio
   destination:
     server: https://kubernetes.default.svc
     namespace: application

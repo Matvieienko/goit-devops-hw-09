@@ -9,7 +9,7 @@ spec:
   source:
     repoURL: https://github.com/Matvieienko/goit-devops-hw-09.git
     targetRevision: lesson-9
-    path: mlops-experiments/argocd/workloads/postgres
+    path: argocd/workloads/postgres
   destination:
     server: https://kubernetes.default.svc
     namespace: application
