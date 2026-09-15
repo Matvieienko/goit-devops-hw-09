@@ -14,6 +14,9 @@ spec:
       releaseName: prometheus
       values: |
         server:
+          persistentVolume:
+            enabled: false
+
           service:
             type: ClusterIP
 
