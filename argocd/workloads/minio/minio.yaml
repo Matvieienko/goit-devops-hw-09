@@ -58,7 +58,6 @@ spec:
       port: 9001
       targetPort: 9001
 ---
----
 apiVersion: batch/v1
 kind: Job
 metadata:
@@ -69,7 +68,7 @@ spec:
       restartPolicy: OnFailure
       containers:
         - name: create-bucket
-          image: minio/mc:latest
+          image: quay.io/minio/mc:RELEASE.2024-11-21T17-21-54Z
           command:
             - /bin/sh
             - -c
