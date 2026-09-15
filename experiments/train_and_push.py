@@ -90,10 +90,17 @@ def select_best(results: list[RunResult]) -> RunResult:
 def download_best_model(client: MlflowClient, best: RunResult) -> Path:
     """Завантажити артефакт найкращої моделі у best_model/."""
 
-    if BEST_MODEL_DIR.exists():
-        shutil.rmtree(BEST_MODEL_DIR)
-
     BEST_MODEL_DIR.mkdir(parents=True, exist_ok=True)
+
+    for item in BEST_MODEL_DIR.iterdir():
+        if item.is_dir():
+            shutil.rmtree(item)
+        else:
+            item.unlink()
+    # if BEST_MODEL_DIR.exists():
+    #     shutil.rmtree(BEST_MODEL_DIR)
+
+    # BEST_MODEL_DIR.mkdir(parents=True, exist_ok=True)
 
     downloaded_path = client.download_artifacts(
         best.run_id,
