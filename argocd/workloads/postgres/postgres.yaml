@@ -1,0 +1,51 @@
+# PostgreSQL: тут MLflow зберігає структуровані метадані (experiments, runs,
+# params, metrics) - усе, що зручно шукати й фільтрувати SQL-запитом.
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: postgres
+  labels:
+    app: postgres
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: postgres
+  template:
+    metadata:
+      labels:
+        app: postgres
+    spec:
+      containers:
+        - name: postgres
+          image: postgres:16-alpine
+          ports:
+            - containerPort: 5432
+          env:
+            - name: POSTGRES_DB
+              value: mlflow
+            - name: POSTGRES_USER
+              value: "mlflow"
+            - name: POSTGRES_PASSWORD
+              value: "mlflow123"
+          # TODO: подумайте - без volumeMounts дані загинуть при рестарті
+          # пода. Чи це проблема для навчального ДЗ? А для production?
+          resources:
+            requests:
+              cpu: 50m
+              memory: 128Mi
+            limits:
+              cpu: 250m
+              memory: 256Mi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: postgres
+spec:
+  type: ClusterIP
+  selector:
+    app: postgres
+  ports:
+    - port: 5432
+      targetPort: 5432

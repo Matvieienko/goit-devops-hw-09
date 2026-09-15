@@ -1,0 +1,62 @@
+# MLflow Tracking Server: єдина точка входу, яку викликає train_and_push.py.
+# Сам MLflow нічого не зберігає - він лише проксі до Postgres (metadata) і
+# MinIO (artifacts). Тому образ офіційний mlflow не підходить "з коробки":
+# потрібні psycopg2 і boto3 всередині контейнера, або кастомний Dockerfile.
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mlflow
+  labels:
+    app: mlflow
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: mlflow
+  template:
+    metadata:
+      labels:
+        app: mlflow
+    spec:
+      containers:
+        - name: mlflow
+          image: matvieienko/mlflow-custom:1.0
+          args:
+            - mlflow
+            - server
+            - --host=0.0.0.0
+            - --port=5000
+            # TODO: --backend-store-uri  → куди дивитись за прикладом URI Postgres?
+            # TODO: --default-artifact-root → s3://<бакет>/
+            - "--backend-store-uri=postgresql://mlflow:mlflow123@postgres.application.svc.cluster.local:5432/mlflow"
+            - "--default-artifact-root=s3://mlflow-artifacts/"
+          ports:
+            - containerPort: 5000
+          env:
+            # TODO: MLflow сервер сам ходить у MinIO як у S3 -
+            # йому теж потрібні AWS_ACCESS_KEY_ID / SECRET / ENDPOINT_URL.
+            - name: MLFLOW_S3_ENDPOINT_URL
+              value: "http://minio.application.svc.cluster.local:9000"
+            - name: AWS_ACCESS_KEY_ID
+              value: "minioadmin"
+            - name: AWS_SECRET_ACCESS_KEY
+              value: "minioadmin123"
+          resources:
+            requests:
+              cpu: 100m
+              memory: 256Mi
+            limits:
+              cpu: 500m
+              memory: 512Mi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: mlflow
+spec:
+  type: ClusterIP
+  selector:
+    app: mlflow
+  ports:
+    - port: 5000
+      targetPort: 5000

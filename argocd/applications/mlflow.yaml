@@ -1,0 +1,24 @@
+# Argo CD Application для MLflow Tracking Server.
+# Це "вказівник": Argo CD прочитає манфест(и) з path нижче і підтримуватиме
+# кластер у стані, описаному там (GitOps: Git = єдине джерело правди).
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: mlflow-tracking
+  namespace: infra-tools          # тут "живуть" самі Application-об'єкти
+spec:
+  project: default
+  source:
+    repoURL: https://github.com/Matvieienko/goit-devops-hw-09.git
+    targetRevision: lesson-9      # гілка, з якою працює це ДЗ
+    path: mlops-experiments/argocd/workloads/mlflow
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: application
+  syncPolicy:
+    automated:
+      prune: true      # TODO: поясніть у README, що станеться, якщо це false
+      selfHeal: true    # TODO: поясніть у README, що станеться, якщо це false
+    syncOptions:
+      - CreateNamespace=true
+      - ServerSideApply=true
